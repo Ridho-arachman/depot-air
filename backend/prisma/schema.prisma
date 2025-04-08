@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id  String  @id @default(cuid())
+  name  String @db.VarChar(255) 
+  email String @unique
+  password  String @db.VarChar(255)
+  phone  String @db.VarChar(20)
+  role      Role    @default(user)
+  path_image String? @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order  Order[]
+  like Like[]
+  reports Reports[]
+}
+
+model Product {
+  sku  String  @id @default(cuid())
+  name  String @db.VarChar(255) 
+  price  Decimal 
+  description  String @db.Text
+  stock  Int
+  path_image String @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order_item OrderItem[]
+}
+
+model Order {
+  id  String  @id @default(cuid())
+  user_id String 
+  status OrderStatus @default(pending)
+  quantity  Int
+  total_price  Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id] )
+
+  order_item OrderItem[]
+  like Like[]
+  payment payment[]
+}
+
+model OrderItem {
+  order_id String 
+  product_sku String 
+  quantity  Int
+  price_at_purchase  Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@id([order_id, product_sku]) 
+  
+  order Order @relation(fields: [order_id], references: [id],onDelete: Cascade)
+  product Product @relation(fields: [product_sku], references: [sku],onDelete: NoAction)
+}
+
+model Like{
+  user_id String
+  order_id String
+  rating Int
+  @@id([user_id, order_id])
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+model Reports{
+  id  String  @id @default(cuid())
+  user_id String
+  type ReportType
+  description String
+  amount Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user User @relation(fields: [user_id], references: [id], onDelete: NoAction)
+}
+
+model payment{
+  sku  String  @id @default(cuid())
+  order_id String
+  method MethodPayment 
+  status StatusPayment @default(pending)
+  paid_at DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order Order @relation(fields: [order_id], references: [id],onDelete: NoAction)
+}
+
+model Tank{
+  id  String  @id @default(cuid())
+  current_volume Decimal
+  max_cappacity Decimal
+  is_warning Boolean
+  last_reset_at DateTime @default(now())
+}
+
+enum Role {
+  superadmin
+  admin
+  user
+}
+
+enum ReportType {
+  income
+  expense
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  canceled
+  delivered
+}
+
+enum MethodPayment {
+  manual_transfer
+  qris
+}
+
+enum StatusPayment {
+  pending
+  confirmed
+  failed
+  expired
+}
