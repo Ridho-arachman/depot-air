@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { ApiResponse } from './interfaces/userInterface';
 
@@ -41,7 +41,7 @@ export class UserService {
     }
   }
 
-  async getAllUsers(): Promise<any> {
+  async getAllUsers(): Promise<ApiResponse<User>> {
     try {
       const users = await this.prisma.user.findMany();
       return {
