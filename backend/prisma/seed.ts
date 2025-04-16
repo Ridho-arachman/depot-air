@@ -30,7 +30,7 @@ async function main() {
       data: {
         name: 'Super Admin',
         email: 'admin@admin.com',
-        password: await bcrypt.hash('admin123', 10),
+        password: await bcrypt.hash('Admin123', 10),
         phone: '081234567890',
         role: Role.superadmin,
         path_image: faker.image.avatar(),
@@ -43,7 +43,7 @@ async function main() {
         .map(() => ({
           name: faker.person.fullName(),
           email: faker.internet.email(),
-          password: bcrypt.hashSync('password123', 10),
+          password: bcrypt.hashSync('Password123', 10),
           phone: faker.phone.number(),
           role: Role.user,
           path_image: faker.image.avatar(),
