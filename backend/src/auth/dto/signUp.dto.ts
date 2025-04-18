@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -14,9 +15,10 @@ export class SignUpDto {
   @IsNotEmpty({ message: 'Name is required' })
   @MinLength(5, { message: 'Name must be at least 5 characters' })
   @MaxLength(255, { message: 'Name cannot exceed 255 characters' })
-  @Matches(/^[a-zA-Z\s]+$/, {
-    message: 'Name can only contain letters and spaces',
+  @Matches(/^(?!\s*$).+/, {
+    message: 'Name cannot be empty or only whitespace',
   })
+  @Transform(({ value }: { value: string }) => value?.trim())
   name: string;
 
   @ApiProperty()

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { LoggingInterceptor } from './logging/logging.interceptor';
 
 const logger = new Logger('Bootstrap', { timestamp: true });
 
@@ -9,9 +10,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger:
       process.env.NODE_ENV === 'production'
-        ? ['error', 'warn', 'log']
-        : ['error', 'warn', 'log', 'debug'],
+        ? ['error', 'warn', 'log', 'fatal']
+        : ['error', 'warn', 'log', 'debug', 'fatal'],
   });
+
+  app.enableCors({ origin: '*' });
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.useGlobalPipes(new ValidationPipe());
 

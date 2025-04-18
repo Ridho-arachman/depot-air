@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/signIn.dto';
@@ -45,6 +49,17 @@ export class AuthService {
   }
 
   async signUp({ email, name, password }: SignUpDto) {
-    return this.usersService.createUser({ email, name, password });
+    try {
+      await this.usersService.createUser({ email, name, password });
+      return {
+        status: 201,
+        message: 'Successfully signed up',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      throw new InternalServerErrorException('Internal server error');
+    }
   }
 }

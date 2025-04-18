@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -12,9 +13,7 @@ export class CreateUser {
   @IsNotEmpty({ message: 'Name is required' })
   @MinLength(5, { message: 'Name must be at least 5 characters' })
   @MaxLength(255, { message: 'Name cannot exceed 255 characters' })
-  @Matches(/^[a-zA-Z\s]+$/, {
-    message: 'Name can only contain letters and spaces',
-  })
+  @Transform(({ value }: { value: string }) => value.trim())
   name: string;
 
   @IsEmail({}, { message: 'Please provide a valid email address' })
