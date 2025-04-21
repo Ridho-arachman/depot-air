@@ -1,28 +1,60 @@
-import { Body, Controller, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { GithubAuthGuard } from './guards/github-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { SignInDto } from './dto/signIn.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SignInRes } from './interfaces/interface.signInRes';
 import { SignUpDto } from './dto/signUp.dto';
 
-@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // CREDENTIALS
   @Post('login')
-  @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  async login(@Body() signInDto: SignInDto): Promise<SignInRes> {
-    return this.authService.signIn(signInDto);
+  @HttpCode(200)
+  @UseGuards(LocalAuthGuard)
+  login(@Body() body: SignInDto, @Req() req) {
+    return this.authService.login(req.user);
   }
 
   @Post('register')
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 409, description: 'User already exists' })
-  async register(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+  @HttpCode(201)
+  register(@Body() body: SignUpDto) {
+    return this.authService.register(body);
+  }
+
+  // GOOGLE
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  googleAuth() {}
+
+  @Get('google/redirect')
+  @HttpCode(200)
+  @UseGuards(GoogleAuthGuard)
+  googleRedirect(@Req() req) {
+    return this.authService.oauthLogin(req.user);
+  }
+
+  //GITHUB
+  @Get('github')
+  @UseGuards(GithubAuthGuard)
+  githubLogin() {}
+
+  @Get('github/redirect')
+  @HttpCode(200)
+  @UseGuards(GithubAuthGuard)
+  githubRedirect(@Req() req) {
+    console.log(req.user);
+    return this.authService.oauthLogin(req.user);
   }
 }

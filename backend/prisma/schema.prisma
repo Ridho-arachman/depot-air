@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -14,23 +15,40 @@ datasource db {
 }
 
 
-model User {
+model Users {
   id  String  @id @default(cuid())
-  name  String @db.VarChar(255) 
+  username  String @db.VarChar(255) 
   email String @unique
-  password  String @db.VarChar(255)
+  addres String? @db.VarChar(255)
   phone  String? @db.VarChar(20)
+  provider  Provider @default(local)
   role      Role    @default(user)
   path_image String? @db.VarChar(255)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  order  Order[]
-  like Like[]
+  credential Credentials? 
+  user_oauth UserOauth?
+  order  Orders[]
+  like Likes[]
   reports Reports[]
 }
 
-model Product {
+model Credentials {
+  user_id   String    @id
+  password  String    @db.VarChar(255)                
+
+  user      Users      @relation(fields: [user_id], references: [id])
+}
+
+model UserOauth{
+  user_id String @id    
+  oauthId   String    
+
+  user Users @relation(fields: [user_id], references: [id])
+}
+
+model Products {
   sku  String  @id @default(cuid())
   name  String @db.VarChar(255) 
   price  Decimal 
@@ -43,7 +61,7 @@ model Product {
   order_item OrderItem[]
 }
 
-model Order {
+model Orders {
   id  String  @id @default(cuid())
   user_id String 
   status OrderStatus @default(pending)
@@ -52,11 +70,11 @@ model Order {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user User @relation(fields: [user_id], references: [id] )
+  user Users @relation(fields: [user_id], references: [id] )
 
   order_item OrderItem[]
-  like Like[]
-  payment payment[]
+  like Likes[]
+  payment Payments[]
 }
 
 model OrderItem {
@@ -69,18 +87,18 @@ model OrderItem {
 
   @@id([order_id, product_sku]) 
   
-  order Order @relation(fields: [order_id], references: [id],onDelete: Cascade)
-  product Product @relation(fields: [product_sku], references: [sku],onDelete: NoAction)
+  order Orders @relation(fields: [order_id], references: [id],onDelete: Cascade)
+  product Products @relation(fields: [product_sku], references: [sku],onDelete: NoAction)
 }
 
-model Like{
+model Likes{
   user_id String
   order_id String
   rating Int
   @@id([user_id, order_id])
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order Orders @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }
 
 model Reports{
@@ -91,10 +109,10 @@ model Reports{
   amount Decimal
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  user User @relation(fields: [user_id], references: [id], onDelete: NoAction)
+  user Users @relation(fields: [user_id], references: [id], onDelete: NoAction)
 }
 
-model payment{
+model Payments{
   sku  String  @id @default(cuid())
   order_id String
   method MethodPayment 
@@ -102,15 +120,21 @@ model payment{
   paid_at DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  order Order @relation(fields: [order_id], references: [id],onDelete: NoAction)
+  order Orders @relation(fields: [order_id], references: [id],onDelete: NoAction)
 }
 
-model Tank{
+model Tanks{
   id  String  @id @default(cuid())
   current_volume Decimal
   max_cappacity Decimal
   is_warning Boolean
   last_reset_at DateTime @default(now())
+}
+
+enum Provider {
+  local
+  google
+  github
 }
 
 enum Role {

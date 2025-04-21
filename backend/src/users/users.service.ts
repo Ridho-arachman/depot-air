@@ -4,43 +4,54 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Credentials, Prisma, Users } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { FindOne } from './dto/findOne.dto';
-import { CreateUser } from './dto/createUser.dto';
+import { CreateUser, findUserByEmail } from './interfaces/user-interface';
 
+type UserWithCredential = Users & { credential: Credentials | null };
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findOne({ email }: FindOne): Promise<User> {
+  async findUserByEmail({
+    email,
+  }: findUserByEmail): Promise<UserWithCredential | null> {
     try {
-      const user = await this.prisma.user.findUnique({ where: { email } });
-      if (!user) throw new NotFoundException('User not found');
-      return user;
+      return await this.prisma.users.findUnique({
+        where: { email },
+        include: { credential: true },
+      });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException('User not found');
-        }
+      const prismaError = error as Prisma.PrismaClientKnownRequestError; // type assertion
+      if (prismaError.code === 'P2025') {
+        throw new NotFoundException('User not found');
       }
       throw new InternalServerErrorException('Failed to fetch user');
     }
   }
 
-  async createUser(data: CreateUser): Promise<User> {
+  async createUser(data: CreateUser): Promise<Users> {
     try {
-      const user = await this.prisma.user.create({ data });
-      return user;
+      return await this.prisma.users.create({
+        data: {
+          username: data.username,
+          email: data.email,
+          provider: data.provider,
+          path_image: data.avatar,
+          user_oauth: {
+            create: {
+              oauthId: data.id,
+            },
+          },
+        },
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException('User not found');
-        } else if (error.code === 'P2002') {
-          throw new BadRequestException('Email already exists');
+        if (error.code === 'P2002') {
+          throw new BadRequestException('Email sudah digunakan');
         }
       }
-      throw new InternalServerErrorException('Failed to create user');
+      throw new InternalServerErrorException('Gagal membuat user');
     }
   }
 }

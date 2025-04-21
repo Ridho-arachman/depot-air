@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   PrismaClient,
   Role,
@@ -16,41 +19,51 @@ async function main() {
     // Clean database
     await prisma.$transaction([
       prisma.orderItem.deleteMany(),
-      prisma.payment.deleteMany(),
-      prisma.like.deleteMany(),
+      prisma.payments.deleteMany(),
+      prisma.likes.deleteMany(),
       prisma.reports.deleteMany(),
-      prisma.order.deleteMany(),
-      prisma.product.deleteMany(),
-      prisma.user.deleteMany(),
-      prisma.tank.deleteMany(),
+      prisma.orders.deleteMany(),
+      prisma.products.deleteMany(),
+      prisma.users.deleteMany(),
+      prisma.tanks.deleteMany(),
     ]);
 
     // Create admin & users
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
-        name: 'Super Admin',
+        username: 'Super Admin',
         email: 'admin@admin.com',
-        password: await bcrypt.hash('Admin123', 10),
         phone: '081234567890',
+        addres: faker.location.streetAddress(),
         role: Role.superadmin,
         path_image: faker.image.avatar(),
+        credential: {
+          create: {
+            password: bcrypt.hashSync('Password123', 10),
+          },
+        },
       },
     });
 
-    await prisma.user.createMany({
+    await prisma.users.createMany({
       data: Array(5)
         .fill(null)
         .map(() => ({
-          name: faker.person.fullName(),
+          username: faker.person.fullName(),
           email: faker.internet.email(),
-          password: bcrypt.hashSync('Password123', 10),
           phone: faker.phone.number(),
+          addres: faker.location.streetAddress(),
           role: Role.user,
           path_image: faker.image.avatar(),
+          credential: {
+            create: {
+              password: bcrypt.hashSync('Password123', 10),
+            },
+          },
         })),
     });
 
-    await prisma.product.createMany({
+    await prisma.products.createMany({
       data: Array(10)
         .fill(null)
         .map(() => ({
@@ -63,13 +76,13 @@ async function main() {
     });
 
     // Get all users and products for relations
-    const allUsers = await prisma.user.findMany();
-    const allProducts = await prisma.product.findMany();
+    const allUsers = await prisma.users.findMany();
+    const allProducts = await prisma.products.findMany();
 
     // Create orders and related data
     for (const user of allUsers) {
       // Create order
-      const order = await prisma.order.create({
+      const order = await prisma.orders.create({
         data: {
           user_id: user.id,
           status: OrderStatus.pending,
@@ -89,7 +102,7 @@ async function main() {
       });
 
       // Create payment
-      await prisma.payment.create({
+      await prisma.payments.create({
         data: {
           order_id: order.id,
           method: MethodPayment.manual_transfer,
@@ -100,7 +113,7 @@ async function main() {
 
       // Create like (50% chance)
       if (faker.datatype.boolean()) {
-        await prisma.like.create({
+        await prisma.likes.create({
           data: {
             user_id: user.id,
             order_id: order.id,
@@ -124,7 +137,7 @@ async function main() {
     }
 
     // Create tank
-    await prisma.tank.create({
+    await prisma.tanks.create({
       data: {
         current_volume: 500,
         max_cappacity: 1000,

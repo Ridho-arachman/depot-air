@@ -19,7 +19,7 @@ export class SignUpDto {
     message: 'Name cannot be empty or only whitespace',
   })
   @Transform(({ value }: { value: string }) => value?.trim())
-  name: string;
+  username: string;
 
   @ApiProperty()
   @IsEmail({}, { message: 'Please provide a valid email address' })
