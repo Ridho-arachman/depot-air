@@ -50,7 +50,7 @@ model UserOauth{
 
 model Products {
   sku  String  @id @default(cuid())
-  name  String @db.VarChar(255) 
+  name  String @db.VarChar(255) @unique
   price  Decimal 
   description  String @db.Text
   stock  Int
