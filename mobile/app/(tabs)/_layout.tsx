@@ -27,9 +27,9 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="store"
+        name="toko"
         options={{
-          title: "Store",
+          title: "Toko",
           headerShown: false,
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <FontAwesome5
