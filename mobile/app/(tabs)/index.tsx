@@ -1,74 +1,145 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import {
+  H1,
+  H2,
+  ScrollView,
+  YStack,
+  XStack,
+  Text,
+  Button,
+  Image,
+  Card,
+  Paragraph,
+} from "tamagui";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { useRouter } from "expo-router";
+import { homeAssets } from "@/constants/homeAssets";
+import { useColorScheme } from "react-native";
+import { ProdukCard } from "@/components/Card";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Index() {
+  const router = useRouter();
+  const colorScheme = useColorScheme();
 
-export default function HomeScreen() {
+  const pressHandle = () => {
+    router.push("/produk");
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView mx="$5" my="$6">
+      {/* HEADING */}
+      <XStack justifyContent="space-between">
+        <YStack>
+          <H1 fontSize="$10" lineHeight="$10" fontWeight="bold" color="$blue11">
+            RIDHO FRESH
+          </H1>
+          <Text fontSize={"$4"}>Depot Air Isi Ulang</Text>
+        </YStack>
+        <Button
+          onPress={pressHandle}
+          backgroundColor={colorScheme === "dark" ? "white" : "$blue5"}
+        >
+          <SimpleLineIcons name="basket" size={24} color="black" />
+        </Button>
+      </XStack>
+
+      {/* HERO */}
+      <XStack
+        backgroundColor="$blue5"
+        padding="$4"
+        alignItems="center"
+        mt="$6"
+        borderRadius="$6"
+      >
+        <YStack flex={1} maxWidth="77%" paddingRight="$3" gap="$2">
+          <Text color="$blue11" fontSize="$6" fontWeight="bold">
+            Selamat datang di Ridho Fresh!
+          </Text>
+          <Text>Pesan Air Isi Ulang Dengan Mudah</Text>
+        </YStack>
+        <YStack flex={1} maxWidth="23%" alignItems="center">
+          <Image
+            source={homeAssets.hero}
+            width={150}
+            height={150}
+            resizeMode="contain"
+          />
+        </YStack>
+      </XStack>
+
+      {/* JASA */}
+      <YStack mt="$6">
+        <H2 fontSize="$9" fontWeight="bold">
+          Jasa
+        </H2>
+        <XStack justifyContent="center" gap={"$4"} flexWrap="wrap">
+          <Card
+            elevate
+            size="$4"
+            animation="bouncy"
+            width="45%"
+            height={200}
+            scale={0.9}
+            hoverStyle={{ scale: 0.925 }}
+            pressStyle={{ scale: 0.875 }}
+            borderRadius="$4"
+            overflow="hidden"
+          >
+            <Card.Header padded>
+              <H2 color="$blue6" fontSize={"$8"} fontWeight="bold">
+                Galon 19 L
+              </H2>
+              <Text color="black">RP. 5.000</Text>
+            </Card.Header>
+
+            <Card.Footer padded>
+              <XStack flex={1} />
+              <Button borderRadius="$10">Purchase</Button>
+            </Card.Footer>
+
+            <Card.Background>
+              <Image
+                resizeMode="cover"
+                width="100%"
+                height="100%"
+                source={homeAssets.jasa1}
+              />
+            </Card.Background>
+          </Card>
+          <Card
+            elevate
+            size="$4"
+            animation="bouncy"
+            width="45%"
+            height={200}
+            scale={0.9}
+            hoverStyle={{ scale: 0.925 }}
+            pressStyle={{ scale: 0.875 }}
+            borderRadius="$4"
+            overflow="hidden"
+          >
+            <Card.Header padded>
+              <H2 color="$blue6" fontSize={"$8"} fontWeight="bold">
+                Galon 19 L
+              </H2>
+              <Text color="black">RP. 5.000</Text>
+            </Card.Header>
+
+            <Card.Footer padded>
+              <XStack flex={1} />
+              <Button borderRadius="$10">Purchase</Button>
+            </Card.Footer>
+
+            <Card.Background>
+              <Image
+                resizeMode="cover"
+                width="100%"
+                height="100%"
+                source={homeAssets.jasa2}
+              />
+            </Card.Background>
+          </Card>
+        </XStack>
+      </YStack>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
