@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import Entypo from "@expo/vector-icons/Entypo";
-import { Platform, StyleSheet, useColorScheme } from "react-native";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { StyleSheet, useColorScheme } from "react-native";
 
 const Layout = () => {
   const colorScheme = useColorScheme();
@@ -8,6 +9,7 @@ const Layout = () => {
     <Tabs
       screenOptions={{
         tabBarStyle: styles.tabs,
+        tabBarItemStyle: styles.tabsItem,
       }}
     >
       <Tabs.Screen
@@ -24,6 +26,20 @@ const Layout = () => {
           ),
         }}
       />
+      <Tabs.Screen
+        name="store"
+        options={{
+          title: "Store",
+          headerShown: false,
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
+            <FontAwesome5
+              name="store"
+              size={24}
+              color={focused ? "#007AFF" : "#999"}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 };
@@ -31,13 +47,25 @@ const Layout = () => {
 const styles = StyleSheet.create({
   tabs: {
     backgroundColor: "#fff",
-    height: Platform.OS === "ios" ? 88 : 64,
-    paddingBottom: Platform.OS === "ios" ? 20 : 0,
-    paddingTop: Platform.OS === "ios" ? 20 : 7,
-    marginHorizontal: "auto",
-    width: "85%",
-    marginBottom: 20,
-    borderRadius: 20,
+    borderRadius: 50,
+    marginHorizontal: 20,
+    marginBottom: 36,
+    height: 52,
+    position: "absolute",
+    overflow: "hidden",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    borderColor: "blue",
+  },
+  tabsItem: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   icon: {
     width: 24,
