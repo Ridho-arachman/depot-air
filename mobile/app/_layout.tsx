@@ -13,12 +13,11 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    // add this
     <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme!}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="modal" options={{ presentation: "modal" }} /> */}
+          <Stack.Screen name="+not-found.tsx" options={{ title: "Oops!" }} />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>

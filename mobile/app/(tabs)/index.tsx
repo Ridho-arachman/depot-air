@@ -7,7 +7,7 @@ import { LocationSection } from "@/components/home/LocationSection";
 
 export default function Index() {
   return (
-    <ScrollView pt="$6">
+    <ScrollView pt="$6" backgroundColor="$background">
       <View mx="$4" mb="$15">
         <HeaderSection />
         <HeroSection />
