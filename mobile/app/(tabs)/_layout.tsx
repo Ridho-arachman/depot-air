@@ -1,7 +1,9 @@
 import { Tabs } from "expo-router";
 import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { StyleSheet, useColorScheme } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 const Layout = () => {
   const colorScheme = useColorScheme();
@@ -34,6 +36,34 @@ const Layout = () => {
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <FontAwesome5
               name="store"
+              size={24}
+              color={focused ? "#007AFF" : "#999"}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="akun"
+        options={{
+          title: "Akun",
+          headerShown: false,
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
+            <MaterialCommunityIcons
+              name="account"
+              size={24}
+              color={focused ? "#007AFF" : "#999"}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="pesanan"
+        options={{
+          title: "Pemesanan",
+          headerShown: false,
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
+            <Feather
+              name="box"
               size={24}
               color={focused ? "#007AFF" : "#999"}
             />

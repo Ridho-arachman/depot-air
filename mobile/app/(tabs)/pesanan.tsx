@@ -1,31 +1,76 @@
-import { StyleSheet } from "react-native";
-import React, { useState } from "react";
-import { useStore } from "@/store/useStore"; // Sesuaikan dengan path store Anda
-import { Button, Input, Text, View } from "tamagui";
+import { Feather } from "@expo/vector-icons";
+import { View, Text, YStack, XStack, Card, ScrollView, Spacer } from "tamagui";
 
-const Pesanan = () => {
-  const store = useStore((state) => state.bears);
-  const tambah = useStore((state) => state.increasePopulation);
-  const kurang = useStore((state) => state.removeAllBears);
-  const updateBears = useStore((state) => state.updateBears);
+export default function OrdersScreen() {
+  const orders = [
+    {
+      id: "001",
+      status: "Sedang diproses",
+      product: "Galon 15 Liter",
+      date: "28 April 2025",
+    },
+    {
+      id: "002",
+      status: "Dikirim",
+      product: "Air isi ulang galon 19 Liter",
+      date: "25 April 2025",
+    },
+    {
+      id: "003",
+      status: "Selesai",
+      product: "Galon 15 Liter",
+      date: "20 April 2025",
+    },
+  ];
 
   return (
-    <View flex={1} justifyContent="center" alignItems="center">
-      <Text color={"red"}>{store}</Text>
-      <Button onPress={tambah}>TAMBAH</Button>
-      <Button onPress={kurang}>KURANG</Button>
-      <Input
-        value={store.toString()}
-        onChangeText={(e: string) => {
-          const num = parseInt(e);
-          updateBears(num);
-        }}
-        placeholder="Masukkan angka"
-      />
-    </View>
+    <ScrollView f={1} p="$4" bg="$background">
+      <Text fontSize="$7" fontWeight="700" mb="$4">
+        Pesanan Saya
+      </Text>
+
+      <YStack gap="$4">
+        {orders.map((order) => (
+          <OrderItem key={order.id} order={order} />
+        ))}
+      </YStack>
+    </ScrollView>
   );
-};
+}
 
-export default Pesanan;
+function OrderItem({
+  order,
+}: {
+  order: { id: string; status: string; product: string; date: string };
+}) {
+  return (
+    <Card bordered p="$4" gap="$3" elevate>
+      <XStack justifyContent="space-between" alignItems="center">
+        <Text fontWeight="600">{order.product}</Text>
+        <Feather name="box" size={20} color="#001F54" />
+      </XStack>
 
-const styles = StyleSheet.create({});
+      <Text color="$gray10">{order.date}</Text>
+
+      <XStack justifyContent="space-between" alignItems="center">
+        <Text color="$gray10">ID: #{order.id}</Text>
+        <Text fontWeight="600" color={getStatusColor(order.status)}>
+          {order.status}
+        </Text>
+      </XStack>
+    </Card>
+  );
+}
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case "Selesai":
+      return "green";
+    case "Dikirim":
+      return "orange";
+    case "Sedang diproses":
+      return "blue";
+    default:
+      return "$gray10";
+  }
+}

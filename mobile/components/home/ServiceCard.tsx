@@ -1,4 +1,4 @@
-import { ServiceCardProps } from "@/types/home";
+import { ServiceCardProps } from "@/components/types/home";
 import { Card, H2, Text, XStack, Button, Image } from "tamagui";
 
 export function ServiceCard({ title, price, image }: ServiceCardProps) {

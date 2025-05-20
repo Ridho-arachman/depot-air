@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import tamaguiConfig from "../tamagui.config";
 
+const queryClient = new QueryClient();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -21,7 +22,7 @@ export default function RootLayout() {
         >
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found.tsx" options={{ title: "Oops!" }} />
+            <Stack.Screen name="+not-found" options={{ title: "Oops!" }} />
           </Stack>
         </ThemeProvider>
       </TamaguiProvider>
