@@ -236,68 +236,93 @@ export default function KeranjangScreen() {
       <Stack.Screen options={{ title: "Keranjang Saya" }} />
       <YStack p="$4" space="$4" f={1}>
         <H1>Keranjang Saya</H1>
-        {userOrder.items.map((item) => (
-          <View key={item.id} p="$3" borderRadius="$4" bg="$color2" space="$3">
-            <XStack space="$3" ai="center">
-              <Image
-                source={{
-                  uri: item.product.image || "https://via.placeholder.com/100",
-                }}
-                width={80}
-                height={80}
-                borderRadius="$2"
-              />
-              <YStack f={1} space="$1">
-                <Text fontSize="$6" fontWeight="bold" numberOfLines={2}>
-                  {item.product.name}
-                </Text>
-                <Text fontSize="$4" color="$gray11">
-                  Rp {item.price.toLocaleString("id-ID")}
-                </Text>
-              </YStack>
-            </XStack>
-            <XStack ai="center" jc="space-between" mt="$3">
-              <XStack ai="center" space="$2">
-                <Button
-                  size="$3"
-                  circular
-                  icon={<Feather name="minus" />}
-                  onPress={() => updateQuantity(item.id, item.quantity - 1)}
-                  disabled={item.quantity <= 1 && false} // This logic effectively means the button is never disabled here.
-                />
-                <Text fontSize="$5" mx="$2" fontWeight="bold"> {/* Changed marginInline to mx */}
-                  {item.quantity}
-                </Text>
-                <Button
-                  size="$3"
-                  circular
-                  icon={<Feather name="plus" />}
-                  onPress={() => updateQuantity(item.id, item.quantity + 1)}
-                />
-              </XStack>
-              <YStack ai="flex-end">
-                <Text fontSize="$3" color="$gray10">
-                  Subtotal
-                </Text>
-                <Text fontSize="$5" fontWeight="bold">
-                  Rp {item.subtotal.toLocaleString("id-ID")}
-                </Text>
-              </YStack>
-            </XStack>
-            <Button
-              variant="outlined"
-              borderColor="$red7"
-              color="$red10"
-              icon={<Feather name="trash-2" size={16} />}
-              onPress={() => removeItem(item.id)}
-              mt="$3"
-              size="$3"
+        {userOrder.items.map((item) => {
+          const localPlaceholder = "/images/icon2.png";
+          let finalImageUri = localPlaceholder;
+
+          if (item.product.image) {
+            if (
+              item.product.image.startsWith("http://") ||
+              item.product.image.startsWith("https://")
+            ) {
+              finalImageUri = item.product.image;
+            } else if (item.product.image.startsWith("/")) {
+              finalImageUri = item.product.image;
+            }
+          }
+
+          return (
+            <View
+              key={item.id}
+              p="$3"
+              borderRadius="$4"
+              bg="$color2"
+              space="$3"
             >
-              Hapus
-            </Button>
-            <Separator marginVertical="$3" />
-          </View>
-        ))}
+              <XStack space="$3" ai="center">
+                <Image
+                  source={{
+                    uri: finalImageUri,
+                  }}
+                  width={80}
+                  height={80}
+                  borderRadius="$2"
+                />
+                <YStack f={1} space="$1">
+                  <Text fontSize="$6" fontWeight="bold" numberOfLines={2}>
+                    {item.product.name}
+                  </Text>
+                  <Text fontSize="$4" color="$gray11">
+                    Rp {item.price.toLocaleString("id-ID")}
+                  </Text>
+                </YStack>
+              </XStack>
+              <XStack ai="center" jc="space-between" mt="$3">
+                <XStack ai="center" space="$2">
+                  <Button
+                    size="$3"
+                    circular
+                    icon={<Feather name="minus" />}
+                    onPress={() => updateQuantity(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1} // Diperbarui: Tombol dinonaktifkan jika kuantitas <= 1
+                  />
+                  <Text fontSize="$5" mx="$2" fontWeight="bold">
+                    {" "}
+                    {/* Changed marginInline to mx */}
+                    {item.quantity}
+                  </Text>
+                  <Button
+                    size="$3"
+                    circular
+                    icon={<Feather name="plus" />}
+                    onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                  />
+                </XStack>
+                <YStack ai="flex-end">
+                  <Text fontSize="$3" color="$gray10">
+                    Subtotal
+                  </Text>
+                  <Text fontSize="$5" fontWeight="bold">
+                    Rp {item.subtotal.toLocaleString("id-ID")}
+                  </Text>
+                </YStack>
+              </XStack>
+              <Button
+                variant="outlined"
+                borderColor="$red7"
+                color="$red10"
+                icon={<Feather name="trash-2" size={16} />}
+                onPress={() => removeItem(item.id)}
+                mt="$3"
+                size="$3"
+              >
+                Hapus
+              </Button>
+              <Separator marginVertical="$3" />
+            </View>
+          );
+        })}
+        {/* Removed the comma from the end of the line above */}
 
         <YStack space="$2" mt="$4" p="$3" borderRadius="$4" bg="$color3">
           <XStack jc="space-between">

@@ -1,10 +1,10 @@
 import { View, Text, XStack, YStack, Button, Image, ScrollView } from "tamagui";
 import { Link } from "expo-router";
-import { useState } from "react"; // Menghapus useEffect karena tidak digunakan
+import { useState } from "react";
 import json from "@/data/data.json";
 import { Feather } from "@expo/vector-icons";
-import { useAuth } from "@/hooks/useAuth"; // Impor useAuth
-import { Alert } from "react-native"; // Impor Alert
+import { useAuth } from "@/hooks/useAuth";
+import { Alert, ImageSourcePropType } from "react-native"; // Import ImageSourcePropType
 
 // Definisikan tipe untuk produk agar lebih aman saat digunakan
 interface Product {
@@ -53,6 +53,20 @@ interface Order {
   createdAt: string;
   updatedAt: string;
 }
+
+// Definisikan gambar fallback/placeholder menggunakan require
+const fallbackImageSource: ImageSourcePropType = require("@/assets/images/icon2.png");
+
+// Buat pemetaan untuk gambar produk lokal. Anda PERLU mengisi ini
+// dengan semua gambar produk Anda yang berasal dari data.json.
+// Path string (kunci) harus sama persis dengan nilai product.image dari data.json.
+// Path require (nilai) harus menunjuk ke lokasi aset yang benar.
+const productImageMap: { [key: string]: ImageSourcePropType } = {
+  "/images/produk/jasa1.png": require("@/assets/images/produk/jasa1.png"), // Contoh, pastikan file ini ada
+  "/images/produk/jasa2.png": require("@/assets/images/produk/jasa2.png"), // Contoh, pastikan file ini ada
+  // Tambahkan semua gambar produk lainnya dari data.json di sini
+  // Misalnya: "/images/produk/nama-gambar-lain.png": require("@/assets/images/produk/nama-gambar-lain.png"),
+};
 
 export default function Produk() {
   const [products, setProducts] = useState<Product[]>(
@@ -222,76 +236,89 @@ export default function Produk() {
 
       {/* List Produk */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {products.map((product) => (
-          <XStack
-            key={product.id}
-            bg="$color1"
-            borderRadius="$4"
-            p="$3"
-            mb="$3"
-            ai="center"
-            jc="space-between"
-          >
-            <XStack ai="center" f={1} mr="$2">
-              <Image
-                source={{
-                  uri:
-                    product.image && product.image.startsWith("/")
-                      ? `https://cdn-icons-png.flaticon.com/512/2917/2917991.png`
-                      : product.image ||
-                        "https://cdn-icons-png.flaticon.com/512/2917/2917991.png",
-                }}
-                width={50}
-                height={50}
-                borderRadius={8}
-              />
-              <YStack ml="$3" f={1}>
-                <Text
-                  fontSize="$5"
-                  fontWeight="600"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {product.name}
-                </Text>
-                <Text fontSize="$3" color="$gray11">
-                  Rp {product.price.toLocaleString("id-ID")} (Stok:{" "}
-                  {product.stock})
-                </Text>
-              </YStack>
-            </XStack>
+        {products.map((product) => {
+          let imageToDisplay: ImageSourcePropType = fallbackImageSource; // Default ke gambar fallback
 
-            <XStack space="$2" ai="center">
-              <Link
-                href={{ pathname: "/produk/[id]", params: { id: product.id } }}
-                asChild
-              >
+          if (product.image) {
+            if (
+              product.image.startsWith("http://") ||
+              product.image.startsWith("https://")
+            ) {
+              imageToDisplay = { uri: product.image }; // Untuk gambar dari URL eksternal
+            } else if (product.image.startsWith("/")) {
+              // Untuk gambar lokal, gunakan pemetaan
+              imageToDisplay = productImageMap[product.image] || fallbackImageSource;
+            }
+          }
+
+          return (
+            <XStack
+              key={product.id}
+              bg="$color1"
+              borderRadius="$4"
+              p="$3"
+              mb="$3"
+              ai="center"
+              jc="space-between"
+            >
+              <XStack ai="center" f={1} mr="$2">
+                <Image
+                  source={imageToDisplay} // Gunakan imageToDisplay yang sudah ditentukan
+                  width={50}
+                  height={50}
+                  borderRadius={8}
+                />
+                <YStack ml="$3" f={1}>
+                  <Text
+                    fontSize="$5"
+                    fontWeight="600"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {product.name}
+                  </Text>
+                  <Text fontSize="$3" color="$gray11">
+                    Rp {product.price.toLocaleString("id-ID")} (Stok:{" "}
+                    {product.stock})
+                  </Text>
+                </YStack>
+              </XStack>
+
+              <XStack space="$2" ai="center">
+                <Link
+                  href={{
+                    pathname: "/produk/[id]",
+                    params: { id: product.id },
+                  }}
+                  asChild
+                >
+                  <Button
+                    size="$3"
+                    variant="outlined"
+                    icon={<Feather name="eye" size={16} />}
+                    // Apply direct styles for a gray outlined button
+                    borderColor="$gray8" // Example: using a gray token for the border
+                    color="$gray11" // Example: using a gray token for text/icon color
+                    // The 'variant="outlined"' prop will handle the transparent background
+                  >
+                    Detail
+                  </Button>
+                </Link>
                 <Button
                   size="$3"
-                  variant="outlined"
-                  icon={<Feather name="eye" size={16} />}
-                  // Apply direct styles for a gray outlined button
-                  borderColor="$gray8" // Example: using a gray token for the border
-                  color="$gray11" // Example: using a gray token for text/icon color
-                  // The 'variant="outlined"' prop will handle the transparent background
+                  // Apply direct styles for a blue button
+                  backgroundColor={product.stock > 0 ? "$blue9" : "$gray6"} // Warna tombol berdasarkan stok
+                  color="$white" // Example: white text color
+                  borderColor={product.stock > 0 ? "$blue7" : "$gray5"} // Optional: border for the blue button
+                  onPress={() => handleAddToCart(product)}
+                  disabled={product.stock === 0} // Nonaktifkan tombol jika stok habis
                 >
-                  Detail
+                  {product.stock > 0 ? "Tambah" : "Habis"}
                 </Button>
-              </Link>
-              <Button
-                size="$3"
-                // Apply direct styles for a blue button
-                backgroundColor={product.stock > 0 ? "$blue9" : "$gray6"} // Warna tombol berdasarkan stok
-                color="$white" // Example: white text color
-                borderColor={product.stock > 0 ? "$blue7" : "$gray5"} // Optional: border for the blue button
-                onPress={() => handleAddToCart(product)}
-                disabled={product.stock === 0} // Nonaktifkan tombol jika stok habis
-              >
-                {product.stock > 0 ? "Tambah" : "Habis"}
-              </Button>
+              </XStack>
             </XStack>
-          </XStack>
-        ))}
+          );
+        })}
       </ScrollView>
     </YStack>
   );
