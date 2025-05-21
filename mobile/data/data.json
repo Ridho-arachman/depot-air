@@ -1,0 +1,193 @@
+{
+  "users": [
+    {
+      "id": "usr-001",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "081234567890",
+      "address": "Jl. Contoh No. 123, Jakarta",
+      "role": "user",
+      "passwordHash": "$2b$10$fakerandomhashvalueforjohn",
+      "createdAt": "2024-03-20T10:00:00Z",
+      "updatedAt": "2024-03-20T10:00:00Z"
+    },
+    {
+      "id": "usr-002",
+      "name": "Jane Admin",
+      "email": "admin@example.com",
+      "phone": "08111222333",
+      "address": "Jl. Admin No. 1, Bandung",
+      "role": "admin",
+      "passwordHash": "$2b$10$anotherfakerandomhashforjane",
+      "createdAt": "2024-03-21T11:00:00Z",
+      "updatedAt": "2024-03-21T11:00:00Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prd-001",
+      "name": "Galon Air Mineral 19L",
+      "price": 20000,
+      "stock": 100,
+      "description": "Air mineral dalam kemasan galon 19 liter, kualitas terjamin.",
+      "image": "/images/galon-19l.jpg",
+      "createdAt": "2024-03-20T10:00:00Z",
+      "updatedAt": "2024-03-22T09:30:00Z"
+    },
+    {
+      "id": "prd-002",
+      "name": "Galon Air RO 19L",
+      "price": 22000,
+      "stock": 50,
+      "description": "Air Reverse Osmosis (RO) murni dalam kemasan galon 19 liter.",
+      "image": "/images/galon-ro-19l.jpg",
+      "createdAt": "2024-03-21T14:00:00Z",
+      "updatedAt": "2024-03-22T10:00:00Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-001",
+      "userId": "usr-001",
+      "items": [
+        {
+          "id": "itm-001",
+          "orderId": "ord-001",
+          "productId": "prd-001",
+          "product": {
+            "id": "prd-001",
+            "name": "Galon Air Mineral 19L",
+            "price": 20000,
+            "stock": 98,
+            "description": "Air mineral dalam kemasan galon 19 liter, kualitas terjamin.",
+            "image": "/images/galon-19l.jpg"
+          },
+          "quantity": 2,
+          "price": 20000,
+          "subtotal": 40000
+        }
+      ],
+      "totalAmount": 40000,
+      "status": "pending",
+      "payment": {
+        "id": "pay-001",
+        "orderId": "ord-001",
+        "amount": 40000,
+        "method": "midtrans",
+        "status": "pending",
+        "paymentUrl": "https://midtrans.com/pay/abc123",
+        "paymentToken": "tok_abc123",
+        "createdAt": "2024-03-20T10:00:00Z",
+        "updatedAt": "2024-03-20T10:00:00Z"
+      },
+      "createdAt": "2024-03-20T10:00:00Z",
+      "updatedAt": "2024-03-20T10:05:00Z"
+    },
+    {
+      "id": "ord-002",
+      "userId": "usr-002",
+      "items": [
+        {
+          "id": "itm-002",
+          "orderId": "ord-002",
+          "productId": "prd-002",
+          "product": {
+            "id": "prd-002",
+            "name": "Galon Air RO 19L",
+            "price": 22000,
+            "stock": 49,
+            "description": "Air Reverse Osmosis (RO) murni dalam kemasan galon 19 liter.",
+            "image": "/images/galon-ro-19l.jpg"
+          },
+          "quantity": 1,
+          "price": 22000,
+          "subtotal": 22000
+        },
+        {
+          "id": "itm-003",
+          "orderId": "ord-002",
+          "productId": "prd-001",
+          "product": {
+            "id": "prd-001",
+            "name": "Galon Air Mineral 19L",
+            "price": 20000,
+            "stock": 98,
+            "description": "Air mineral dalam kemasan galon 19 liter, kualitas terjamin.",
+            "image": "/images/galon-19l.jpg"
+          },
+          "quantity": 1,
+          "price": 20000,
+          "subtotal": 20000
+        }
+      ],
+      "totalAmount": 42000,
+      "status": "completed",
+      "payment": {
+        "id": "pay-002",
+        "orderId": "ord-002",
+        "amount": 42000,
+        "method": "manual",
+        "status": "completed",
+        "createdAt": "2024-03-22T11:00:00Z",
+        "updatedAt": "2024-03-22T11:05:00Z"
+      },
+      "createdAt": "2024-03-22T11:00:00Z",
+      "updatedAt": "2024-03-22T11:30:00Z"
+    }
+  ],
+  "waterTanks": [
+    {
+      "id": "tank-001",
+      "capacity": 1000,
+      "currentLevel": 700,
+      "status": "normal",
+      "lastRefill": "2024-03-22T08:00:00Z",
+      "nextRefillEstimate": "2024-03-24T08:00:00Z",
+      "createdAt": "2024-03-20T10:00:00Z",
+      "updatedAt": "2024-03-22T08:00:00Z"
+    }
+  ],
+  "financialReports": [
+    {
+      "id": "fr-001",
+      "period": "2024-03",
+      "totalSales": 5082000,
+      "totalExpenses": 3000000,
+      "netIncome": 2082000,
+      "transactions": [
+        {
+          "id": "trx-001",
+          "reportId": "fr-001",
+          "type": "income",
+          "amount": 40000,
+          "description": "Penjualan Galon (Order ord-001)",
+          "date": "2024-03-20",
+          "createdAt": "2024-03-20T10:05:00Z",
+          "updatedAt": "2024-03-20T10:05:00Z"
+        },
+        {
+          "id": "trx-002",
+          "reportId": "fr-001",
+          "type": "income",
+          "amount": 42000,
+          "description": "Penjualan Galon (Order ord-002)",
+          "date": "2024-03-22",
+          "createdAt": "2024-03-22T11:30:00Z",
+          "updatedAt": "2024-03-22T11:30:00Z"
+        },
+        {
+          "id": "trx-003",
+          "reportId": "fr-001",
+          "type": "expense",
+          "amount": 150000,
+          "description": "Pembelian Stiker Galon",
+          "date": "2024-03-21",
+          "createdAt": "2024-03-21T15:00:00Z",
+          "updatedAt": "2024-03-21T15:00:00Z"
+        }
+      ],
+      "createdAt": "2024-03-01T00:00:00Z",
+      "updatedAt": "2024-03-22T12:00:00Z"
+    }
+  ]
+}

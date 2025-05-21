@@ -1,44 +1,68 @@
 import { Tabs } from "expo-router";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { StyleSheet, useColorScheme } from "react-native";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter, usePathname } from "expo-router";
+import { useEffect } from "react";
 import { Feather } from "@expo/vector-icons";
 
-const Layout = () => {
-  const colorScheme = useColorScheme();
+// Add type definition for the tab bar icon props
+type TabBarIconProps = {
+  color: string;
+  size: number;
+};
+
+export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Jika bukan di halaman index dan belum login, redirect ke login
+    if (!isAuthenticated && pathname !== "/(tabs)/" && !pathname.startsWith("/login") && !pathname.startsWith("/produk/")) {
+      // Izinkan akses ke halaman produk detail meskipun belum login
+      if (pathname === "/(tabs)/pesanan" || pathname === "/(tabs)/akun" || pathname === "/(tabs)/toko" || pathname === "/(tabs)/keranjang") {
+         router.replace("/login");
+      }
+    }
+  }, [isAuthenticated, pathname, router]);
+
   return (
-    <Tabs
-      screenOptions={{
-        tabBarStyle: styles.tabs,
-        tabBarItemStyle: styles.tabsItem,
-      }}
-    >
+    <Tabs>
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          headerShown: false,
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Entypo
-              name="home"
-              size={24}
-              color={focused ? "#007AFF" : "#999"}
-            />
+          title: "Beranda",
+          tabBarIcon: ({ color, size }: TabBarIconProps) => (
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="toko"
+        name="toko" // Pindahkan Toko ke posisi kedua untuk alur yang lebih umum
         options={{
           title: "Toko",
-          headerShown: false,
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <FontAwesome5
-              name="store"
-              size={24}
-              color={focused ? "#007AFF" : "#999"}
-            />
+          // href: isAuthenticated ? "/(tabs)/toko" : null, // Selalu tampilkan, logika redirect di atas
+          tabBarIcon: ({ color, size }: TabBarIconProps) => (
+            <Feather name="shopping-bag" size={size} color={color} /> // Mengganti ikon toko
+          ),
+        }}
+      />
+       <Tabs.Screen
+        name="keranjang" // Tambahkan tab Keranjang
+        options={{
+          title: "Keranjang",
+          href: isAuthenticated ? "/(tabs)/keranjang" : null, // Sembunyikan jika belum login
+          tabBarIcon: ({ color, size }: TabBarIconProps) => (
+            <Feather name="shopping-cart" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="pesanan"
+        options={{
+          title: "Pesanan",
+          href: isAuthenticated ? "/(tabs)/pesanan" : null,
+          tabBarIcon: ({ color, size }: TabBarIconProps) => (
+            <Feather name="package" size={size} color={color} /> // Mengganti ikon pesanan
           ),
         }}
       />
@@ -46,61 +70,13 @@ const Layout = () => {
         name="akun"
         options={{
           title: "Akun",
-          headerShown: false,
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <MaterialCommunityIcons
-              name="account"
-              size={24}
-              color={focused ? "#007AFF" : "#999"}
-            />
+          href: isAuthenticated ? "/(tabs)/akun" : null,
+          tabBarIcon: ({ color, size }: TabBarIconProps) => (
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="pesanan"
-        options={{
-          title: "Pemesanan",
-          headerShown: false,
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Feather
-              name="box"
-              size={24}
-              color={focused ? "#007AFF" : "#999"}
-            />
-          ),
-        }}
-      />
+      {/* Hapus Tab Toko yang lama jika sudah dipindahkan */}
     </Tabs>
   );
-};
-
-const styles = StyleSheet.create({
-  tabs: {
-    backgroundColor: "#fff",
-    borderRadius: 50,
-    marginHorizontal: 20,
-    marginBottom: 36,
-    height: 52,
-    position: "absolute",
-    overflow: "hidden",
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
-    borderColor: "blue",
-  },
-  tabsItem: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  icon: {
-    width: 24,
-    height: 24,
-  },
-});
-
-export default Layout;
+}
