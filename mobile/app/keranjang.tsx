@@ -336,12 +336,15 @@ export default function KeranjangScreen() {
             size="$5"
             iconAfter={<Feather name="arrow-right" />}
             onPress={() => {
-              // Navigasi ke halaman pembayaran atau checkout
-              Alert.alert(
-                "Checkout",
-                "Fitur checkout belum diimplementasikan."
-              );
-              // router.push("/checkout"); // Contoh navigasi
+              if (userOrder && userOrder.id) {
+                // Navigasi ke halaman checkout dengan orderId
+                router.push({
+                  pathname: "/checkout",
+                  params: { orderId: userOrder.id },
+                });
+              } else {
+                Alert.alert("Error", "Tidak ada pesanan yang dapat diproses.");
+              }
             }}
           >
             Lanjut ke Pembayaran

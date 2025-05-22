@@ -22,7 +22,9 @@ export default function PengaturanScreen() {
   // State untuk pengaturan (simulasi, tidak disimpan permanen)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   // Fix for ts(2367): Ensure theme.name is treated as a string for comparison
-  const [darkModeEnabled, setDarkModeEnabled] = useState(String(theme.name) === 'dark'); // Inisialisasi berdasarkan tema Tamagui
+  const [darkModeEnabled, setDarkModeEnabled] = useState(
+    String(theme.name) === "dark"
+  ); // Inisialisasi berdasarkan tema Tamagui
   const [selectedLanguage, setSelectedLanguage] = useState("Indonesia");
 
   const handleClearCache = () => {
@@ -31,7 +33,10 @@ export default function PengaturanScreen() {
       "Apakah Anda yakin ingin menghapus cache aplikasi? (Simulasi)",
       [
         { text: "Batal", style: "cancel" },
-        { text: "Hapus", onPress: () => console.log("Cache dibersihkan (simulasi)") },
+        {
+          text: "Hapus",
+          onPress: () => console.log("Cache dibersihkan (simulasi)"),
+        },
       ]
     );
   };
@@ -39,10 +44,15 @@ export default function PengaturanScreen() {
   // Fungsi untuk mengubah tema (simulasi, tidak mengubah tema Tamagui secara global di sini)
   const toggleDarkMode = (enabled: boolean) => {
     setDarkModeEnabled(enabled);
-    Alert.alert("Mode Gelap", `Mode gelap ${enabled ? 'diaktifkan' : 'dinonaktifkan'}. (Simulasi, perlu implementasi tema global)`);
+    Alert.alert(
+      "Mode Gelap",
+      `Mode gelap ${
+        enabled ? "diaktifkan" : "dinonaktifkan"
+      }. (Simulasi, perlu implementasi tema global)`
+    );
     // Untuk implementasi nyata, Anda perlu memanggil fungsi dari ThemeProvider Anda
     // contoh: toggleTheme(enabled ? 'dark' : 'light');
-  }
+  };
 
   return (
     <ScrollView bg="$background" f={1}>
@@ -86,7 +96,13 @@ export default function PengaturanScreen() {
         </YStack>
 
         {/* Pengaturan Tampilan */}
-        <YStack space="$3" p="$3" borderRadius="$4" bg="$backgroundFocus" mt="$4">
+        <YStack
+          space="$3"
+          p="$3"
+          borderRadius="$4"
+          bg="$backgroundFocus"
+          mt="$4"
+        >
           <Text fontSize="$6" fontWeight="600">
             Tampilan
           </Text>
@@ -107,31 +123,55 @@ export default function PengaturanScreen() {
         </YStack>
 
         {/* Pengaturan Bahasa */}
-        <YStack space="$3" p="$3" borderRadius="$4" bg="$backgroundFocus" mt="$4">
+        <YStack
+          space="$3"
+          p="$3"
+          borderRadius="$4"
+          bg="$backgroundFocus"
+          mt="$4"
+        >
           <Text fontSize="$6" fontWeight="600">
             Bahasa
           </Text>
           <Separator />
           <XStack ai="center" jc="space-between" mt="$2">
             <Paragraph>Pilih Bahasa</Paragraph>
-            <Button size="$3" onPress={() => Alert.alert("Pilih Bahasa", "Fitur pilih bahasa belum tersedia.")}>
+            <Button
+              size="$3"
+              onPress={() =>
+                Alert.alert(
+                  "Pilih Bahasa",
+                  "Fitur pilih bahasa belum tersedia."
+                )
+              }
+            >
               {selectedLanguage} <Feather name="chevron-right" size={16} />
             </Button>
           </XStack>
         </YStack>
 
         {/* Pengaturan Lainnya */}
-        <YStack space="$3" p="$3" borderRadius="$4" bg="$backgroundFocus" mt="$4">
+        <YStack
+          space="$3"
+          p="$3"
+          borderRadius="$4"
+          bg="$backgroundFocus"
+          mt="$4"
+        >
           <Text fontSize="$6" fontWeight="600">
             Lainnya
           </Text>
           <Separator />
           {/* Fix for ts(2322): Change theme name to a valid one, e.g., "red" */}
-          <Button theme="red" mt="$2" onPress={handleClearCache} iconAfter={<Feather name="trash-2" size={16} />}>
+          <Button
+            theme="red"
+            mt="$2"
+            onPress={handleClearCache}
+            iconAfter={<Feather name="trash-2" size={16} />}
+          >
             Hapus Cache Aplikasi
           </Button>
         </YStack>
-
       </YStack>
     </ScrollView>
   );

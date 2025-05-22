@@ -48,7 +48,9 @@ export default function EditProfilScreen() {
         const userIdMatch = token.match(/usr-\d+/);
         if (userIdMatch && userIdMatch[0]) {
           const userId = userIdMatch[0];
-          const userFromFile = json.users.find((u) => u.id === userId) as User | undefined;
+          const userFromFile = json.users.find((u) => u.id === userId) as
+            | User
+            | undefined;
           if (userFromFile) {
             setCurrentUser(userFromFile);
             // Pre-fill form fields
@@ -99,7 +101,10 @@ export default function EditProfilScreen() {
         // Anda bisa navigasi kembali atau biarkan pengguna di halaman ini
         // router.back();
       } else {
-        Alert.alert("Error", "Gagal memperbarui profil, pengguna tidak ditemukan.");
+        Alert.alert(
+          "Error",
+          "Gagal memperbarui profil, pengguna tidak ditemukan."
+        );
       }
     } catch (error) {
       console.error("Update profile error:", error);
@@ -145,14 +150,20 @@ export default function EditProfilScreen() {
             rules={{ required: "Nama wajib diisi" }}
             render={({ field: { onChange, onBlur, value } }) => (
               <YStack>
-                <Text mb="$1" fontWeight="600">Nama Lengkap</Text>
+                <Text mb="$1" fontWeight="600">
+                  Nama Lengkap
+                </Text>
                 <Input
                   placeholder="Nama Lengkap"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
                 />
-                {errors.name && <Text color="$red10" fontSize="$2" mt="$1">{errors.name.message}</Text>}
+                {errors.name && (
+                  <Text color="$red10" fontSize="$2" mt="$1">
+                    {errors.name.message}
+                  </Text>
+                )}
               </YStack>
             )}
           />
@@ -169,7 +180,9 @@ export default function EditProfilScreen() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <YStack>
-                <Text mb="$1" fontWeight="600">Email</Text>
+                <Text mb="$1" fontWeight="600">
+                  Email
+                </Text>
                 <Input
                   placeholder="Email"
                   onBlur={onBlur}
@@ -178,7 +191,11 @@ export default function EditProfilScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
-                {errors.email && <Text color="$red10" fontSize="$2" mt="$1">{errors.email.message}</Text>}
+                {errors.email && (
+                  <Text color="$red10" fontSize="$2" mt="$1">
+                    {errors.email.message}
+                  </Text>
+                )}
               </YStack>
             )}
           />
@@ -189,7 +206,9 @@ export default function EditProfilScreen() {
             rules={{ required: "Nomor telepon wajib diisi" }}
             render={({ field: { onChange, onBlur, value } }) => (
               <YStack>
-                <Text mb="$1" fontWeight="600">Nomor Telepon</Text>
+                <Text mb="$1" fontWeight="600">
+                  Nomor Telepon
+                </Text>
                 <Input
                   placeholder="Nomor Telepon"
                   onBlur={onBlur}
@@ -197,7 +216,11 @@ export default function EditProfilScreen() {
                   value={value}
                   keyboardType="phone-pad"
                 />
-                {errors.phone && <Text color="$red10" fontSize="$2" mt="$1">{errors.phone.message}</Text>}
+                {errors.phone && (
+                  <Text color="$red10" fontSize="$2" mt="$1">
+                    {errors.phone.message}
+                  </Text>
+                )}
               </YStack>
             )}
           />
@@ -208,7 +231,9 @@ export default function EditProfilScreen() {
             rules={{ required: "Alamat wajib diisi" }}
             render={({ field: { onChange, onBlur, value } }) => (
               <YStack>
-                <Text mb="$1" fontWeight="600">Alamat</Text>
+                <Text mb="$1" fontWeight="600">
+                  Alamat
+                </Text>
                 <Input
                   placeholder="Alamat"
                   onBlur={onBlur}
@@ -218,7 +243,11 @@ export default function EditProfilScreen() {
                   numberOfLines={3}
                   textAlignVertical="top" // Untuk Android agar teks mulai dari atas
                 />
-                {errors.address && <Text color="$red10" fontSize="$2" mt="$1">{errors.address.message}</Text>}
+                {errors.address && (
+                  <Text color="$red10" fontSize="$2" mt="$1">
+                    {errors.address.message}
+                  </Text>
+                )}
               </YStack>
             )}
           />

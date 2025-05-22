@@ -202,14 +202,15 @@ export default function ProductDetailScreen() {
     }
 
     // Kurangi stok di katalog produk utama
-    const productCatalogIndex = json.products.findIndex(p => p.id === productInCatalog.id);
+    const productCatalogIndex = json.products.findIndex(
+      (p) => p.id === productInCatalog.id
+    );
     if (productCatalogIndex > -1) {
       json.products[productCatalogIndex].stock -= 1;
       json.products[productCatalogIndex].updatedAt = new Date().toISOString();
       // Perbarui state produk di halaman detail untuk merefleksikan stok baru
       setProduct({ ...json.products[productCatalogIndex] });
     }
-
 
     Alert.alert(
       "Sukses",
@@ -218,7 +219,6 @@ export default function ProductDetailScreen() {
     // Anda bisa menambahkan navigasi ke keranjang di sini jika diinginkan
     // router.push("/keranjang");
   };
-
 
   if (!product) {
     return (

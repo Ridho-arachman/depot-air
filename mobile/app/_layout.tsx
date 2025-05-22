@@ -69,6 +69,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="keranjang" />
+        <Stack.Screen name="checkout" /> {/* Tambahkan baris ini */}
         <Stack.Screen
           name="login"
           options={{

@@ -1,5 +1,13 @@
 import { Feather } from "@expo/vector-icons";
-import { View, Text, YStack, XStack, Card, ScrollView, Paragraph } from "tamagui"; // Removed Spacer, added Paragraph
+import {
+  View,
+  Text,
+  YStack,
+  XStack,
+  Card,
+  ScrollView,
+  Paragraph,
+} from "tamagui"; // Removed Spacer, added Paragraph
 import { useState, useEffect } from "react"; // Added useState, useEffect
 import { useAuth } from "@/hooks/useAuth"; // Added useAuth
 import jsonData from "@/data/data.json"; // Added data import
@@ -29,7 +37,14 @@ interface Order {
   userId: string;
   items: OrderItemDetail[];
   totalAmount: number;
-  status: "pending" | "processing" | "completed" | "cancelled" | "dikirim" | "selesai" | "sedang diproses"; // Adjusted status types
+  status:
+    | "pending"
+    | "processing"
+    | "completed"
+    | "cancelled"
+    | "dikirim"
+    | "selesai"
+    | "sedang diproses"; // Adjusted status types
   payment: any; // Simplified for this example, consider defining Payment interface
   createdAt: string;
   updatedAt: string;
@@ -75,7 +90,8 @@ export default function OrdersScreen() {
           Belum Ada Pesanan
         </Text>
         <Paragraph textAlign="center" color="$gray11">
-          Anda belum melakukan pesanan apapun. Silakan lihat produk kami di toko.
+          Anda belum melakukan pesanan apapun. Silakan lihat produk kami di
+          toko.
         </Paragraph>
       </YStack>
     );
@@ -96,7 +112,8 @@ export default function OrdersScreen() {
   );
 }
 
-function OrderItemCard({ order }: { order: Order }) { // Renamed to OrderItemCard and updated prop
+function OrderItemCard({ order }: { order: Order }) {
+  // Renamed to OrderItemCard and updated prop
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
@@ -116,12 +133,16 @@ function OrderItemCard({ order }: { order: Order }) { // Renamed to OrderItemCar
   return (
     <Card bordered p="$4" gap="$3" elevate>
       <XStack justifyContent="space-between" alignItems="center">
-        <Text fontWeight="600" flex={1} numberOfLines={2} ellipsizeMode="tail">{productDisplay}</Text>
+        <Text fontWeight="600" flex={1} numberOfLines={2} ellipsizeMode="tail">
+          {productDisplay}
+        </Text>
         <Feather name="box" size={20} color="#001F54" />
       </XStack>
 
       <Text color="$gray10">Tanggal Pesan: {formatDate(order.createdAt)}</Text>
-      <Text color="$gray10">Total: Rp {order.totalAmount.toLocaleString("id-ID")}</Text>
+      <Text color="$gray10">
+        Total: Rp {order.totalAmount.toLocaleString("id-ID")}
+      </Text>
 
       <XStack justifyContent="space-between" alignItems="center">
         <Text color="$gray10">ID: #{order.id.substring(0, 8)}...</Text>
@@ -133,7 +154,8 @@ function OrderItemCard({ order }: { order: Order }) { // Renamed to OrderItemCar
   );
 }
 
-function getStatusColor(status: Order['status']) { // Updated status type
+function getStatusColor(status: Order["status"]) {
+  // Updated status type
   switch (status.toLowerCase()) {
     case "selesai":
     case "completed":
