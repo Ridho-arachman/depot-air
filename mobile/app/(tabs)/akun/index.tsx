@@ -37,10 +37,14 @@ export default function AccountScreen() {
             setCurrentUser(userFromFile as User);
             userIsValid = true;
           } else {
-            console.warn(`User with ID ${userId} not found in data.json. Invalidating token.`);
+            console.warn(
+              `User with ID ${userId} not found in data.json. Invalidating token.`
+            );
           }
         } else {
-          console.warn("Could not extract user ID from token or token format is unexpected. Invalidating token.");
+          console.warn(
+            "Could not extract user ID from token or token format is unexpected. Invalidating token."
+          );
         }
 
         if (!userIsValid) {
@@ -48,7 +52,7 @@ export default function AccountScreen() {
           setToken(null); // Hapus token dari context
           await SecureStore.deleteItemAsync("token"); // Hapus token dari SecureStore
           // Jika Anda ingin langsung mengarahkan ke login dari sini, uncomment baris berikut:
-          // router.replace("/login"); 
+          // router.replace("/login");
           // Namun, biasanya penanganan redirect lebih baik dilakukan di level navigator (misal: _layout.tsx)
           // yang memantau perubahan state token.
         }
@@ -88,21 +92,27 @@ export default function AccountScreen() {
           icon="user"
           label="Profil"
           onPress={() => {
-            /* TODO: Navigasi ke halaman edit profil */
+            // Navigasi ke halaman edit profil
+            router.push("/(tabs)/akun/edit-profil");
+            console.log("Navigasi ke halaman edit profil");
           }}
         />
         <MenuItem
           icon="settings"
           label="Pengaturan"
           onPress={() => {
-            /* TODO: Navigasi ke halaman pengaturan */
+            // Navigasi ke halaman pengaturan
+            router.push("/(tabs)/akun/pengaturan");
+            console.log("Navigasi ke halaman pengaturan");
           }}
         />
         <MenuItem
           icon="help-circle"
           label="Bantuan"
           onPress={() => {
-            /* TODO: Navigasi ke halaman bantuan */
+            // Navigasi ke halaman bantuan
+            router.push("/(tabs)/akun/bantuan");
+            console.log("Navigasi ke halaman bantuan");
           }}
         />
         <MenuItem icon="power" label="Keluar" onPress={handleLogout} />

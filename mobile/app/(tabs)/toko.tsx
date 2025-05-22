@@ -247,7 +247,8 @@ export default function Produk() {
               imageToDisplay = { uri: product.image }; // Untuk gambar dari URL eksternal
             } else if (product.image.startsWith("/")) {
               // Untuk gambar lokal, gunakan pemetaan
-              imageToDisplay = productImageMap[product.image] || fallbackImageSource;
+              imageToDisplay =
+                productImageMap[product.image] || fallbackImageSource;
             }
           }
 

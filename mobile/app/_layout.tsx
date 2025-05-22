@@ -8,6 +8,22 @@ import * as SecureStore from "expo-secure-store";
 // Prevent the splash screen from auto-hiding until we're ready.
 SplashScreen.preventAutoHideAsync();
 
+// --- MULAI PENAMBAHAN ---
+// Contoh implementasi dasar validateToken.
+// Untuk sekarang, kita buat selalu mengembalikan false agar tidak auto-login.
+// Anda HARUS mengganti ini dengan logika validasi token yang sebenarnya
+// (misalnya, memeriksa expiry time, atau validasi ke backend).
+async function validateToken(token: string): Promise<boolean> {
+  console.log("Memvalidasi token:", token);
+  // TODO: Implementasikan logika validasi token yang sesungguhnya di sini.
+  // Contoh:
+  // 1. Decode token JWT dan cek expiry.
+  // 2. Panggil endpoint backend untuk validasi.
+  // Untuk sekarang, kita kembalikan false agar tidak otomatis login.
+  return false;
+}
+// --- SELESAI PENAMBAHAN ---
+
 export default function RootLayout() {
   const { setToken } = useAuth();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
@@ -17,10 +33,15 @@ export default function RootLayout() {
       try {
         const token = await SecureStore.getItemAsync("token");
         if (token) {
-          setToken(token);
+          const isValid = await validateToken(token);
+          if (isValid) {
+            setToken(token);
+          } else {
+            // Token tidak valid, hapus dari penyimpanan
+            await SecureStore.deleteItemAsync("token"); // Token dihapus di sini
+          }
         }
       } catch (e) {
-        // Here, you might want to log the error or handle it appropriately
         console.warn("Failed to initialize auth:", e);
       } finally {
         setIsAuthInitialized(true);
@@ -64,3 +85,12 @@ export default function RootLayout() {
     </TamaguiProvider>
   );
 }
+
+// Di dalam komponen RootLayout atau di dalam hook useAuth
+const clearToken = async () => {
+  try {
+    await SecureStore.deleteItemAsync("token");
+  } catch (e) {
+    console.warn("Failed to clear token:", e);
+  }
+};

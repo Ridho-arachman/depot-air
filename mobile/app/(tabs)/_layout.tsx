@@ -17,10 +17,20 @@ export default function TabLayout() {
 
   useEffect(() => {
     // Jika bukan di halaman index dan belum login, redirect ke login
-    if (!isAuthenticated && pathname !== "/(tabs)/" && !pathname.startsWith("/login") && !pathname.startsWith("/produk/")) {
+    if (
+      !isAuthenticated &&
+      pathname !== "/(tabs)/" &&
+      !pathname.startsWith("/login") &&
+      !pathname.startsWith("/produk/")
+    ) {
       // Izinkan akses ke halaman produk detail meskipun belum login
-      if (pathname === "/(tabs)/pesanan" || pathname === "/(tabs)/akun" || pathname === "/(tabs)/toko" || pathname === "/(tabs)/keranjang") {
-         router.replace("/login");
+      if (
+        pathname === "/(tabs)/pesanan" ||
+        pathname === "/(tabs)/akun" ||
+        pathname === "/(tabs)/toko" ||
+        pathname === "/(tabs)/keranjang"
+      ) {
+        router.replace("/login");
       }
     }
   }, [isAuthenticated, pathname, router]);
@@ -46,7 +56,7 @@ export default function TabLayout() {
           ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="keranjang" // Tambahkan tab Keranjang
         options={{
           title: "Keranjang",

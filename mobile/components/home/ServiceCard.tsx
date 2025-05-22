@@ -1,7 +1,9 @@
 import { ServiceCardProps } from "@/components/types/home";
 import { Card, H2, Text, XStack, Button, Image } from "tamagui";
+import { Link } from "expo-router"; // Impor Link
 
-export function ServiceCard({ title, price, image }: ServiceCardProps) {
+// Pastikan ServiceCardProps di "@/components/types/home" juga memiliki 'id: string;'
+export function ServiceCard({ title, price, image, id }: ServiceCardProps & { id: string }) { // Tambahkan 'id' ke props
   return (
     <Card
       elevate
@@ -24,7 +26,15 @@ export function ServiceCard({ title, price, image }: ServiceCardProps) {
 
       <Card.Footer padded>
         <XStack flex={1} />
-        <Button borderRadius="$10">Pesan</Button>
+        <Link
+          href={{
+            pathname: "/produk/[id]", // Path ke halaman detail produk
+            params: { id: id },       // Kirim 'id' produk sebagai parameter
+          }}
+          asChild // Agar Link menggunakan Button sebagai child-nya untuk styling dan event
+        >
+          <Button borderRadius="$10">Pesan</Button>
+        </Link>
       </Card.Footer>
 
       <Card.Background>
