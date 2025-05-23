@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import json from "@/data/data.json";
 import { Feather } from "@expo/vector-icons";
 import { Alert } from "react-native";
+import { useIsFocused } from '@react-navigation/native'; // Import useIsFocused
 
 // Menggunakan kembali interface yang sudah ada dari toko.tsx atau definisikan di sini jika perlu
 interface Product {
@@ -67,6 +68,7 @@ export default function KeranjangScreen() {
   const { token } = useAuth();
   const [userOrder, setUserOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isFocused = useIsFocused(); // Gunakan hook useIsFocused
 
   const getUserIdFromToken = (authToken: string | null): string | null => {
     if (!authToken) return null;
@@ -75,18 +77,24 @@ export default function KeranjangScreen() {
   };
 
   useEffect(() => {
-    const userId = getUserIdFromToken(token);
-    if (userId) {
-      const order = (json.orders as Order[]).find(
-        // Cast json.orders to Order[]
-        (o) => o.userId === userId && o.status === "pending"
-      );
-      setUserOrder(order || null);
-    } else {
-      setUserOrder(null); // Jika tidak ada user ID, tidak ada order
+    // Hanya jalankan jika layar sedang fokus atau token berubah
+    if (isFocused) {
+      setIsLoading(true); // Set loading true saat mulai fetch
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        // Cari order 'pending' dari json.orders yang dimutasi
+        const order = (json.orders as Order[]).find(
+          (o) => o.userId === userId && o.status === "pending"
+        );
+        setUserOrder(order || null);
+      } else {
+        setUserOrder(null); 
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [token, json.orders]); // Tambahkan json.orders sebagai dependency agar re-render jika order berubah
+  }, [token, isFocused, json.orders]); // Tambahkan isFocused dan json.orders sebagai dependency
+                                    // json.orders ditambahkan untuk kasus jika ada perubahan lain pada orders
+                                    // yang tidak terkait fokus, meskipun fokus adalah pemicu utama di sini.
 
   const updateQuantity = (itemId: string, newQuantity: number) => {
     if (!userOrder) return;
@@ -105,7 +113,6 @@ export default function KeranjangScreen() {
     const quantityDifference =
       newQuantity - userOrder.items[itemIndex].quantity;
 
-    // Cek apakah stok cukup untuk menambah kuantitas
     if (quantityDifference > 0 && productInCatalog.stock < quantityDifference) {
       Alert.alert(
         "Stok Tidak Cukup",
@@ -115,7 +122,6 @@ export default function KeranjangScreen() {
     }
 
     if (newQuantity <= 0) {
-      // Jika kuantitas 0 atau kurang, hapus item
       removeItem(itemId);
       return;
     }
@@ -125,7 +131,6 @@ export default function KeranjangScreen() {
     updatedItems[itemIndex].subtotal =
       newQuantity * updatedItems[itemIndex].price;
 
-    // Update stok di katalog utama
     productInCatalog.stock -= quantityDifference;
     productInCatalog.updatedAt = new Date().toISOString();
 
@@ -142,15 +147,12 @@ export default function KeranjangScreen() {
     };
     setUserOrder(updatedOrder);
 
-    // Update order di json.orders (simulasi)
     const orderInJsonIndex = (json.orders as Order[]).findIndex(
       (o) => o.id === userOrder.id
-    ); // Cast json.orders
+    );
     if (orderInJsonIndex !== -1) {
-      (json.orders as Order[])[orderInJsonIndex] = updatedOrder; // Cast json.orders
+      (json.orders as Order[])[orderInJsonIndex] = updatedOrder;
     }
-    // Perbarui juga state produk di halaman toko jika perlu (misalnya melalui context atau event)
-    // Untuk sekarang, kita asumsikan perubahan stok di json.products akan terbaca di halaman toko saat dibuka kembali
   };
 
   const removeItem = (itemId: string) => {
@@ -163,7 +165,7 @@ export default function KeranjangScreen() {
       (p) => p.id === itemToRemove.productId
     ) as Product | undefined;
     if (productInCatalog) {
-      productInCatalog.stock += itemToRemove.quantity; // Kembalikan stok
+      productInCatalog.stock += itemToRemove.quantity;
       productInCatalog.updatedAt = new Date().toISOString();
     }
 
@@ -181,22 +183,20 @@ export default function KeranjangScreen() {
     };
 
     if (updatedItems.length === 0) {
-      // Jika keranjang kosong, kita bisa hapus order pending atau biarkan kosong
-      // Untuk simulasi ini, kita biarkan ordernya ada tapi items kosong
-      setUserOrder(updatedOrder);
+      setUserOrder(updatedOrder); 
       const orderInJsonIndex = (json.orders as Order[]).findIndex(
         (o) => o.id === userOrder.id
-      ); // Cast json.orders
+      );
       if (orderInJsonIndex !== -1) {
-        (json.orders as Order[])[orderInJsonIndex] = updatedOrder; // Cast json.orders // atau hapus: json.orders.splice(orderInJsonIndex, 1);
+        (json.orders as Order[])[orderInJsonIndex] = updatedOrder; 
       }
     } else {
       setUserOrder(updatedOrder);
       const orderInJsonIndex = (json.orders as Order[]).findIndex(
         (o) => o.id === userOrder.id
-      ); // Cast json.orders
+      );
       if (orderInJsonIndex !== -1) {
-        (json.orders as Order[])[orderInJsonIndex] = updatedOrder; // Cast json.orders
+        (json.orders as Order[])[orderInJsonIndex] = updatedOrder;
       }
     }
     Alert.alert(
@@ -213,6 +213,7 @@ export default function KeranjangScreen() {
     );
   }
 
+  // Kondisi untuk menampilkan keranjang kosong jika userOrder null atau items kosong
   if (!userOrder || userOrder.items.length === 0) {
     return (
       <YStack f={1} ai="center" jc="center" p="$4" space="$4">
@@ -231,6 +232,7 @@ export default function KeranjangScreen() {
     );
   }
 
+  // Tampilan keranjang jika ada item
   return (
     <ScrollView f={1} bg="$background" contentContainerStyle={{ flexGrow: 1 }}>
       <Stack.Screen options={{ title: "Keranjang Saya" }} />
@@ -284,11 +286,9 @@ export default function KeranjangScreen() {
                     circular
                     icon={<Feather name="minus" />}
                     onPress={() => updateQuantity(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1} // Diperbarui: Tombol dinonaktifkan jika kuantitas <= 1
+                    disabled={item.quantity <= 1}
                   />
                   <Text fontSize="$5" mx="$2" fontWeight="bold">
-                    {" "}
-                    {/* Changed marginInline to mx */}
                     {item.quantity}
                   </Text>
                   <Button
@@ -322,7 +322,6 @@ export default function KeranjangScreen() {
             </View>
           );
         })}
-        {/* Removed the comma from the end of the line above */}
 
         <YStack space="$2" mt="$4" p="$3" borderRadius="$4" bg="$color3">
           <XStack jc="space-between">
@@ -337,7 +336,6 @@ export default function KeranjangScreen() {
             iconAfter={<Feather name="arrow-right" />}
             onPress={() => {
               if (userOrder && userOrder.id) {
-                // Navigasi ke halaman checkout dengan orderId
                 router.push({
                   pathname: "/checkout",
                   params: { orderId: userOrder.id },

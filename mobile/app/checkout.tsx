@@ -136,6 +136,36 @@ export default function CheckoutScreen() {
         (json.orders as Order[])[orderIndex] = updatedOrder;
         setCurrentOrder(updatedOrder); // Update state lokal
 
+        // --- TAMBAHAN: Logika untuk mereset keranjang --- 
+        const userId = getUserIdFromToken(token);
+        if (userId) {
+          // Cari order 'pending' lain milik user ini (yang merupakan keranjang aktif sebelumnya)
+          // Dalam skenario ini, order yang baru saja di-checkout adalah currentOrder,
+          // dan itu sudah diubah statusnya dari 'pending'.
+          // Jika ada order 'pending' lain (seharusnya tidak jika alurnya benar, 
+          // karena checkout dilakukan dari keranjang/order 'pending' yang aktif),
+          // kita bisa mempertimbangkan untuk menghapusnya atau mengubah statusnya.
+          // Namun, karena currentOrder adalah order 'pending' yang di-checkout,
+          // dan statusnya sudah diubah, maka keranjang.tsx seharusnya sudah tidak menampilkannya lagi.
+
+          // Untuk memastikan keranjang benar-benar kosong jika ada kasus aneh,
+          // kita bisa mencari order 'pending' milik user dan menghapusnya atau mengosongkan items-nya.
+          // Namun, pendekatan yang lebih bersih adalah memastikan bahwa setelah checkout,
+          // order yang di-checkout (currentOrder) tidak lagi berstatus 'pending'.
+          // Halaman keranjang.tsx hanya mengambil order dengan status 'pending'.
+          // Jadi, dengan mengubah status currentOrder, keranjang akan otomatis kosong.
+
+          // Jika Anda ingin secara eksplisit menghapus order 'pending' yang mungkin masih ada (meskipun seharusnya tidak):
+          // const pendingCartOrderIndex = (json.orders as Order[]).findIndex(
+          //  (o) => o.userId === userId && o.status === "pending" && o.id !== currentOrder.id // Pastikan bukan order yang baru di-checkout
+          // ); 
+          // if (pendingCartOrderIndex !== -1) {
+          //  (json.orders as Order[]).splice(pendingCartOrderIndex, 1); 
+          //  console.log('Keranjang (order pending sisa) telah dihapus setelah checkout.');
+          // }
+        }
+        // --- AKHIR TAMBAHAN --- 
+
         Alert.alert(
           "Pembayaran Berhasil (Simulasi)",
           "Pesanan Anda sedang diproses.",

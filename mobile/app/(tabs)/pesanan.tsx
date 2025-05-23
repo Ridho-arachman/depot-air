@@ -7,10 +7,13 @@ import {
   Card,
   ScrollView,
   Paragraph,
-} from "tamagui"; // Removed Spacer, added Paragraph
-import { useState, useEffect } from "react"; // Added useState, useEffect
-import { useAuth } from "@/hooks/useAuth"; // Added useAuth
-import jsonData from "@/data/data.json"; // Added data import
+  Button, // Ditambahkan Button
+} from "tamagui";
+import { useState, useEffect, useCallback, useRef } from "react"; // Ditambahkan useCallback
+import { useAuth } from "@/hooks/useAuth";
+import jsonData from "@/data/data.json";
+import { Alert } from "react-native"; // Ditambahkan Alert
+import { useIsFocused } from "@react-navigation/native"; // Ditambahkan useIsFocused
 
 // Define interfaces based on data.json structure
 interface Product {
@@ -44,16 +47,23 @@ interface Order {
     | "cancelled"
     | "dikirim"
     | "selesai"
-    | "sedang diproses"; // Adjusted status types
-  payment: any; // Simplified for this example, consider defining Payment interface
+    | "sedang diproses"
+    | "pesanan sampai";
+  payment: any;
   createdAt: string;
   updatedAt: string;
+  timerId?: number; // Diubah ke number
 }
 
 export default function OrdersScreen() {
   const { token } = useAuth();
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isFocused = useIsFocused();
+
+  // Map untuk menyimpan timer ID aktif berdasarkan orderId, dikelola di luar state React
+  // untuk menghindari re-render yang tidak perlu saat hanya timerId berubah.
+  const activeTimers = useRef<Map<string, number>>(new Map()).current;
 
   const getUserIdFromToken = (authToken: string | null): string | null => {
     if (!authToken) return null;
@@ -61,18 +71,148 @@ export default function OrdersScreen() {
     return userIdMatch && userIdMatch[0] ? userIdMatch[0] : null;
   };
 
-  useEffect(() => {
-    const userId = getUserIdFromToken(token);
-    if (userId) {
-      const ordersForUser = (jsonData.orders as Order[]).filter(
-        (order) => order.userId === userId
+  const updateOrderStatus = useCallback(
+    (orderId: string, newStatus: Order["status"]) => {
+      // Hapus timer yang mungkin aktif untuk order ini dari Map dan jsonData
+      if (activeTimers.has(orderId)) {
+        clearTimeout(activeTimers.get(orderId)!);
+        activeTimers.delete(orderId);
+      }
+      const orderInJsonIndex = (jsonData.orders as Order[]).findIndex(
+        (o) => o.id === orderId
       );
+      if (
+        orderInJsonIndex !== -1 &&
+        (jsonData.orders as Order[])[orderInJsonIndex].timerId
+      ) {
+        clearTimeout((jsonData.orders as Order[])[orderInJsonIndex].timerId!);
+        delete (jsonData.orders as Order[])[orderInJsonIndex].timerId;
+      }
+
+      // Update status di jsonData
+      if (orderInJsonIndex !== -1) {
+        (jsonData.orders as Order[])[orderInJsonIndex].status = newStatus;
+        (jsonData.orders as Order[])[orderInJsonIndex].updatedAt =
+          new Date().toISOString();
+      }
+
+      // Update state React
+      setUserOrders((prevOrders) =>
+        prevOrders.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                status: newStatus,
+                updatedAt: new Date().toISOString(),
+                timerId: undefined,
+              }
+            : o
+        )
+      );
+    },
+    [activeTimers]
+  );
+
+  const cancelOrder = useCallback(
+    (orderId: string) => {
+      Alert.alert(
+        "Batalkan Pesanan",
+        "Apakah Anda yakin ingin membatalkan pesanan ini?",
+        [
+          { text: "Tidak", style: "cancel" },
+          {
+            text: "Ya, Batalkan",
+            onPress: () => updateOrderStatus(orderId, "cancelled"),
+            style: "destructive",
+          },
+        ]
+      );
+    },
+    [updateOrderStatus]
+  );
+
+  const confirmReceipt = useCallback(
+    (orderId: string) => {
+      updateOrderStatus(orderId, "selesai");
+      Alert.alert(
+        "Pesanan Diterima",
+        "Terima kasih telah mengkonfirmasi penerimaan pesanan Anda."
+      );
+    },
+    [updateOrderStatus]
+  );
+
+  useEffect(() => {
+    if (isFocused) {
+      const userId = getUserIdFromToken(token);
+      let ordersForUser: Order[] = [];
+      if (userId) {
+        ordersForUser = (jsonData.orders as Order[])
+          .filter((order) => order.userId === userId)
+          .map((o) => ({ ...o, timerId: activeTimers.get(o.id) || o.timerId })); // Ambil timerId dari activeTimers jika ada
+      }
       setUserOrders(ordersForUser);
-    } else {
-      setUserOrders([]);
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [token]);
+  }, [token, isFocused, activeTimers]); // activeTimers ditambahkan jika ingin merefleksikan perubahan timer di state
+
+  useEffect(() => {
+    userOrders.forEach((order) => {
+      // Hapus timer lama jika ada dan tidak lagi relevan dengan status saat ini
+      if (activeTimers.has(order.id)) {
+        if (
+          (order.status !== "sedang diproses" && order.status !== "dikirim") || // Status tidak lagi memerlukan timer
+          (order.status === "sedang diproses" &&
+            activeTimers.get(order.id) !== undefined &&
+            order.timerId === undefined) || // Timer sudah di-clear dari state tapi masih di map
+          (order.status === "dikirim" &&
+            activeTimers.get(order.id) !== undefined &&
+            order.timerId === undefined)
+        ) {
+          clearTimeout(activeTimers.get(order.id)!);
+          activeTimers.delete(order.id);
+        }
+      }
+
+      let newTimerId: number | undefined = undefined;
+
+      if (order.status === "sedang diproses" && !activeTimers.has(order.id)) {
+        newTimerId = setTimeout(() => {
+          updateOrderStatus(order.id, "dikirim");
+          activeTimers.delete(order.id); // Hapus dari map setelah selesai
+        }, 5000) as unknown as number; // 5 detik
+      } else if (order.status === "dikirim" && !activeTimers.has(order.id)) {
+        newTimerId = setTimeout(() => {
+          updateOrderStatus(order.id, "pesanan sampai");
+          activeTimers.delete(order.id); // Hapus dari map setelah selesai
+        }, 10000) as unknown as number; // 10 detik
+      }
+
+      if (newTimerId !== undefined) {
+        activeTimers.set(order.id, newTimerId);
+        // Simpan juga di jsonData untuk persistensi sederhana jika diperlukan saat reload/fokus
+        const orderInJsonIndex = (jsonData.orders as Order[]).findIndex(
+          (o) => o.id === order.id
+        );
+        if (orderInJsonIndex !== -1) {
+          (jsonData.orders as Order[])[orderInJsonIndex].timerId = newTimerId;
+        }
+      }
+    });
+
+    // Cleanup timers saat komponen unmount
+    return () => {
+      activeTimers.forEach((timerId) => clearTimeout(timerId));
+      activeTimers.clear();
+      // Bersihkan juga dari jsonData saat unmount
+      (jsonData.orders as Order[]).forEach((order) => {
+        if (order.timerId) {
+          clearTimeout(order.timerId);
+          delete order.timerId;
+        }
+      });
+    };
+  }, [userOrders, updateOrderStatus, activeTimers]);
 
   if (isLoading) {
     return (
@@ -105,15 +245,29 @@ export default function OrdersScreen() {
 
       <YStack gap="$4">
         {userOrders.map((order) => (
-          <OrderItemCard key={order.id} order={order} />
+          <OrderItemCard
+            key={order.id}
+            order={order}
+            onCancelOrder={cancelOrder}
+            onConfirmReceipt={confirmReceipt}
+          />
         ))}
       </YStack>
     </ScrollView>
   );
 }
 
-function OrderItemCard({ order }: { order: Order }) {
-  // Renamed to OrderItemCard and updated prop
+interface OrderItemCardProps {
+  order: Order;
+  onCancelOrder: (orderId: string) => void;
+  onConfirmReceipt: (orderId: string) => void;
+}
+
+function OrderItemCard({
+  order,
+  onCancelOrder,
+  onConfirmReceipt,
+}: OrderItemCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
@@ -123,7 +277,6 @@ function OrderItemCard({ order }: { order: Order }) {
     });
   };
 
-  // Displaying the name of the first product or a summary
   const productDisplay =
     order.items.length > 0
       ? order.items[0].product.name +
@@ -150,24 +303,47 @@ function OrderItemCard({ order }: { order: Order }) {
           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
         </Text>
       </XStack>
+
+      {(order.status === "pending" || order.status === "sedang diproses") && (
+        <Button
+          theme="red"
+          onPress={() => onCancelOrder(order.id)}
+          icon={<Feather name="x-circle" />}
+          mt="$2"
+        >
+          Batalkan Pesanan
+        </Button>
+      )}
+
+      {order.status === "pesanan sampai" && (
+        <Button
+          theme="green"
+          onPress={() => onConfirmReceipt(order.id)}
+          icon={<Feather name="check-circle" />}
+          mt="$2"
+        >
+          Terima Pesanan
+        </Button>
+      )}
     </Card>
   );
 }
 
 function getStatusColor(status: Order["status"]) {
-  // Updated status type
   switch (status.toLowerCase()) {
     case "selesai":
     case "completed":
-      return "green";
+      return "$green10";
     case "dikirim":
-    case "processing": // Assuming processing might be like 'dikirim'
-      return "orange";
+    case "processing":
+      return "$orange10";
     case "sedang diproses":
     case "pending":
-      return "blue";
+      return "$blue10";
+    case "pesanan sampai":
+      return "$purple10";
     case "cancelled":
-      return "red";
+      return "$red10";
     default:
       return "$gray10";
   }
